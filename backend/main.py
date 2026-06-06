@@ -10,7 +10,15 @@ from core.risk_score import calculate_risk_score
 from core.after_action import generate_after_action_report
 from core.already_built import detect_already_built
 from core.new_joiner import query_joiner_intelligence, get_performance_pulse
-from core.knowledge_preservation import generate_knowledge_transfer_report, detect_succession_gaps
+from core.expert_finder import find_experts
+from core.knowledge_preservation import (
+    generate_knowledge_transfer_report,
+    detect_succession_gaps,
+    mark_person_departed,
+    query_shadow_persona,
+    how_did_person_think
+)
+from core.hindsight_client import seed_rahuls_history
 
 # Ingest imports
 from ingest.github import handle_pr_event
@@ -30,6 +38,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Startup Event
+@app.on_event("startup")
+def startup_event():
+    # Seed Rahul's decision history (5 decisions, 3 domains)
+    seed_rahuls_history()
+
 # Request Models
 class GmailIngestRequest(BaseModel):
     thread_id: str
@@ -47,6 +61,9 @@ class CalendarIngestRequest(BaseModel):
     description: str
     attendees: str
     date_str: str
+
+class DepartRequest(BaseModel):
+    name: str
 
 @app.get("/")
 def read_root():
@@ -84,7 +101,7 @@ def api_already_built(feature_query: str = "SSO SAML"):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# --- 5. New Joiner Intelligence ---
+# --- 5. New Joiner Intelligence & Pulse ---
 @app.get("/api/v1/new-joiner/query")
 def api_new_joiner_query(query: str, x_user_role: str = Header(default="engineering")):
     try:
@@ -99,7 +116,15 @@ def api_performance_pulse():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# --- 6. Institutional Knowledge Preservation ---
+# --- 6. Expert Finder ---
+@app.get("/api/v1/expert-finder")
+def api_expert_finder(topic: str):
+    try:
+        return find_experts(topic)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# --- 7. Institutional Knowledge Preservation ---
 @app.get("/api/v1/knowledge/transfer")
 def api_knowledge_transfer(author: str):
     try:
@@ -111,6 +136,27 @@ def api_knowledge_transfer(author: str):
 def api_succession_gaps():
     try:
         return detect_succession_gaps()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/v1/knowledge/depart")
+def api_depart_person(payload: DepartRequest):
+    try:
+        return mark_person_departed(payload.name)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/knowledge/shadow")
+def api_shadow_query(author: str, query: str):
+    try:
+        return query_shadow_persona(author, query)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/knowledge/how-did-think")
+def api_how_did_think(author: str, topic: str):
+    try:
+        return how_did_person_think(author, topic)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
