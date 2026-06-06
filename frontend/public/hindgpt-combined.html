@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HindGPT | Enterprise Console</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "secondary-fixed-dim": "#b9c7df", "primary-fixed-dim": "#bcc3ff",
+        "on-tertiary-container": "#ffbda6", "tertiary": "#752300",
+        "background": "#faf8ff", "inverse-surface": "#283044",
+        "inverse-primary": "#bcc3ff", "tertiary-container": "#9c3200",
+        "on-tertiary-fixed-variant": "#822800", "on-secondary-fixed": "#0d1c2e",
+        "primary-fixed": "#dfe0ff", "surface-variant": "#dae2fd",
+        "on-surface-variant": "#444655", "surface-container": "#eaedff",
+        "on-primary": "#ffffff", "on-error": "#ffffff",
+        "error-container": "#ffdad6", "primary-container": "#2e44d1",
+        "secondary-container": "#d5e3fc", "surface-container-high": "#e2e7ff",
+        "secondary": "#515f74", "on-surface": "#131b2e",
+        "surface-container-highest": "#dae2fd", "surface": "#faf8ff",
+        "on-tertiary-fixed": "#380d00", "secondary-fixed": "#d5e3fc",
+        "surface-container-low": "#f2f3ff", "on-primary-fixed-variant": "#1731c2",
+        "surface-tint": "#384dd9", "tertiary-fixed-dim": "#ffb59b",
+        "on-error-container": "#93000a", "on-primary-fixed": "#000d60",
+        "outline": "#757686", "on-secondary-fixed-variant": "#3a485b",
+        "on-secondary-container": "#57657a", "surface-dim": "#d2d9f4",
+        "on-tertiary": "#ffffff", "primary": "#0525bb",
+        "surface-bright": "#faf8ff", "on-primary-container": "#c2c8ff",
+        "on-background": "#131b2e", "error": "#ba1a1a",
+        "inverse-on-surface": "#eef0ff", "outline-variant": "#c5c5d7",
+        "tertiary-fixed": "#ffdbcf", "surface-container-lowest": "#ffffff",
+        "on-secondary": "#ffffff"
+      },
+      borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+      spacing: {
+        "sidebar-width": "240px", "container-padding": "24px",
+        "element-gap-sm": "8px", "element-gap-md": "16px"
+      },
+      fontFamily: {
+        "mono-label": ["JetBrains Mono"], "display-lg": ["Inter"],
+        "label-bold": ["Inter"], "headline-sm": ["Inter"],
+        "body-sm": ["Inter"], "body-md": ["Inter"], "headline-md": ["Inter"]
+      },
+      fontSize: {
+        "mono-label": ["12px", {"lineHeight":"16px","fontWeight":"500"}],
+        "display-lg": ["30px", {"lineHeight":"38px","letterSpacing":"-0.02em","fontWeight":"700"}],
+        "label-bold": ["12px", {"lineHeight":"16px","letterSpacing":"0.05em","fontWeight":"600"}],
+        "headline-sm": ["16px", {"lineHeight":"24px","fontWeight":"600"}],
+        "body-sm": ["13px", {"lineHeight":"18px","fontWeight":"400"}],
+        "body-md": ["14px", {"lineHeight":"20px","fontWeight":"400"}],
+        "headline-md": ["20px", {"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"600"}]
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { background-color: #faf8ff; color: #131b2e; font-family: 'Inter', sans-serif; display: flex; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; font-size: 20px; vertical-align: middle; }
+  .page-section { display: none; }
+  .page-section.is-active { display: block; }
+  .nav-link { display: flex; align-items: center; gap: 16px; padding: 12px 16px; color: #444655; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-decoration: none; transition: background-color 0.15s; cursor: pointer; }
+  .nav-link:hover { background-color: #f2f3ff; }
+  .nav-link.is-active { color: #0525bb; background-color: #eaedff; border-right: 2px solid #0525bb; }
+  .nav-link.is-active .material-symbols-outlined { color: #0525bb; }
+  .tab-active { color: #0525bb !important; border-bottom: 2px solid #0525bb; }
+  .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #c5c5d7; border-radius: 4px; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+  #intelligence-nav-tabs { display: none; }
+  #intelligence-nav-tabs.show { display: flex; }
+</style>
+</head>
+<body>
+
+<!-- ========== SIDEBAR ========== -->
+<aside style="position:fixed;left:0;top:0;height:100%;width:240px;background:#faf8ff;border-right:1px solid #c5c5d7;display:flex;flex-direction:column;padding:24px 0;z-index:50;">
+  <div style="padding:0 24px;margin-bottom:40px;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:32px;height:32px;background:#0525bb;border-radius:6px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;flex-shrink:0;">H</div>
+      <div>
+        <div style="font-size:18px;font-weight:700;color:#0525bb;line-height:1.2;">HindGPT</div>
+        <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:#444655;opacity:0.7;text-transform:uppercase;letter-spacing:0.05em;">Enterprise Console</div>
+      </div>
+    </div>
+  </div>
+  <nav style="flex:1;">
+    <ul style="list-style:none;margin:0;padding:0;">
+      <li><a class="nav-link is-active" data-page="dashboard" href="#" onclick="navigate('dashboard');return false;"><span class="material-symbols-outlined">dashboard</span><span>Client Dashboard</span></a></li>
+      <li><a class="nav-link" data-page="scanner" href="#" onclick="navigate('scanner');return false;"><span class="material-symbols-outlined">content_paste_search</span><span>Similarity Scanner</span></a></li>
+      <li><a class="nav-link" data-page="onboarding" href="#" onclick="navigate('onboarding');return false;"><span class="material-symbols-outlined">person_add</span><span>Onboarding Portal</span></a></li>
+      <li><a class="nav-link" data-page="intelligence" href="#" onclick="navigate('intelligence');return false;"><span class="material-symbols-outlined">psychology</span><span>Intelligence Platform</span></a></li>
+    </ul>
+  </nav>
+  <div style="padding:0 16px;margin-top:auto;">
+    <div style="padding:16px;border-radius:4px;border:1px solid #c5c5d7;background:#f2f3ff;display:flex;align-items:center;gap:12px;">
+      <div style="width:32px;height:32px;border-radius:50%;background:#d5e3fc;display:flex;align-items:center;justify-content:center;">
+        <span class="material-symbols-outlined" style="color:#57657a;font-size:18px;">corporate_fare</span>
+      </div>
+      <div>
+        <p style="font-size:12px;font-weight:600;color:#131b2e;margin:0;">Global Org</p>
+        <p style="font-size:10px;font-family:'JetBrains Mono',monospace;color:#444655;text-transform:uppercase;margin:0;">Admin Account</p>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ========== MAIN WRAPPER ========== -->
+<div style="margin-left:240px;flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;">
+
+  <!-- TOP APP BAR -->
+  <header style="height:64px;display:flex;justify-content:space-between;align-items:center;padding:0 24px;background:#faf8ff;border-bottom:1px solid #c5c5d7;flex-shrink:0;z-index:40;">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div style="position:relative;">
+        <span class="material-symbols-outlined" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#444655;">search</span>
+        <input id="main-search" style="background:#f2f3ff;border:1px solid #c5c5d7;border-radius:4px;padding:8px 16px 8px 40px;font-size:14px;width:300px;outline:none;" placeholder="Search projects, clients, or knowledge..." type="text" onfocus="this.style.borderColor='#0525bb'" onblur="this.style.borderColor='#c5c5d7'"/>
+      </div>
+      <!-- Intelligence nav tabs -->
+      <nav id="intelligence-nav-tabs" style="display:none;align-items:center;gap:32px;">
+        <a style="color:#0525bb;border-bottom:2px solid #0525bb;padding-bottom:4px;font-size:12px;font-weight:600;letter-spacing:0.05em;text-decoration:none;" href="#">Insights</a>
+        <a style="color:#444655;font-size:12px;font-weight:600;letter-spacing:0.05em;text-decoration:none;" href="#">Documentation</a>
+        <a style="color:#444655;font-size:12px;font-weight:600;letter-spacing:0.05em;text-decoration:none;" href="#">History</a>
+      </nav>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button style="padding:8px;background:none;border:none;cursor:pointer;border-radius:50%;position:relative;" onmouseenter="this.style.background='#f2f3ff'" onmouseleave="this.style.background='none'">
+        <span class="material-symbols-outlined" style="color:#444655;">notifications</span>
+        <span style="position:absolute;top:8px;right:8px;width:8px;height:8px;background:#ba1a1a;border-radius:50%;border:2px solid #faf8ff;"></span>
+      </button>
+      <button style="padding:8px;background:none;border:none;cursor:pointer;border-radius:50%;" onmouseenter="this.style.background='#f2f3ff'" onmouseleave="this.style.background='none'">
+        <span class="material-symbols-outlined" style="color:#444655;">help_outline</span>
+      </button>
+      <div style="height:32px;width:1px;background:#c5c5d7;margin:0 4px;"></div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="text-align:right;">
+          <p style="font-size:12px;font-weight:600;color:#131b2e;margin:0;">System Admin</p>
+          <p style="font-size:10px;font-family:'JetBrains Mono',monospace;color:#444655;text-transform:uppercase;margin:0;">v2.4.0</p>
+        </div>
+        <img alt="User profile" style="width:32px;height:32px;border-radius:4px;object-fit:cover;" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkJxePHzhJiogb0LUHsY3O7YXjX6oKAI-n04NOISNl8ISSIivcprDju2lgBmq0chFDpMfkVmpKgoIF5NjjAYHZEtosfEzwfxiydGx24PsFWu7S9QlQN-4h_rfCXHjA71NUkuvlMoUX2xTI5CQ0VBQ2p-Yyn_Vl6iAelh9N4GwcJHV7tOlSSfucJMGG38JhYs4aA1vkAX0_op0u0S3m2rL6qQZ-_Rtv6oBcgQaZ-YyzMJMYvvNnAPRP65F9F6syT7nLRpWrBPEKPs0"/>
+      </div>
+    </div>
+  </header>
+
+  <!-- SCROLLABLE CONTENT AREA -->
+  <div style="flex:1;overflow-y:auto;" class="custom-scrollbar">
+
+    <!-- ============================= -->
+    <!-- PAGE 1: CLIENT DASHBOARD      -->
+    <!-- ============================= -->
+    <div id="page-dashboard" class="page-section is-active">
+      <div class="p-container-padding" style="max-width:1440px;margin:0 auto;">
+
+        <!-- Dashboard Header -->
+        <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4 pt-8">
+          <div>
+            <h1 class="font-display-lg text-display-lg text-on-surface mb-1">Client Dashboard</h1>
+            <p class="font-body-md text-body-md text-on-surface-variant">Manage and monitor active project deliveries and performance metrics.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="flex items-center gap-2 px-4 py-2 bg-surface-container-lowest border border-outline-variant font-label-bold text-label-bold text-on-surface-variant hover:bg-surface-container-low transition-all">
+              <span class="material-symbols-outlined text-[18px]">filter_list</span>Filter Status
+            </button>
+            <button class="flex items-center gap-2 px-4 py-2 bg-surface-container-lowest border border-outline-variant font-label-bold text-label-bold text-on-surface-variant hover:bg-surface-container-low transition-all">
+              <span class="material-symbols-outlined text-[18px]">sort</span>Deadline
+            </button>
+            <button class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary font-label-bold text-label-bold hover:opacity-90 transition-all">
+              <span class="material-symbols-outlined text-[18px]">add</span>New Project
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-element-gap-md mb-8">
+          <div class="bg-surface border border-outline-variant p-4">
+            <p class="text-[10px] font-mono-label text-on-surface-variant uppercase mb-1">Active Projects</p>
+            <p class="font-display-lg text-display-lg text-on-surface">24</p>
+          </div>
+          <div class="bg-surface border border-outline-variant p-4">
+            <p class="text-[10px] font-mono-label text-on-surface-variant uppercase mb-1">Total Revenue</p>
+            <p class="font-display-lg text-display-lg text-on-surface">$1.2M</p>
+          </div>
+          <div class="bg-surface border border-outline-variant p-4">
+            <p class="text-[10px] font-mono-label text-on-surface-variant uppercase mb-1">Risk Factor</p>
+            <p class="font-display-lg text-display-lg text-error">Low</p>
+          </div>
+          <div class="bg-surface border border-outline-variant p-4">
+            <p class="text-[10px] font-mono-label text-on-surface-variant uppercase mb-1">Avg Efficiency</p>
+            <p class="font-display-lg text-display-lg text-primary">92%</p>
+          </div>
+        </div>
+
+        <!-- Project Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-element-gap-md pb-8">
+          <!-- Card 1: At Risk -->
+          <div class="bg-surface border border-outline-variant flex flex-col group hover:border-outline transition-all">
+            <div class="p-6 border-b border-outline-variant">
+              <div class="flex justify-between items-start mb-4">
+                <span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-mono-label text-[10px] uppercase">At Risk</span>
+                <button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined">more_vert</span></button>
+              </div>
+              <h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Lumina Tech</h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant">Global Infrastructure Overhaul</p>
+            </div>
+            <div class="p-6 space-y-4">
+              <div class="flex justify-between items-center">
+                <div class="flex flex-col"><span class="font-mono-label text-[10px] text-on-surface-variant uppercase">Deadline</span><span class="font-label-bold text-label-bold text-on-surface">Oct 12, 2024</span></div>
+                <div class="text-right"><span class="font-mono-label text-[10px] text-on-surface-variant uppercase">Time Remaining</span><span class="block font-label-bold text-label-bold text-error">2 Days Left</span></div>
+              </div>
+              <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                  <span class="font-label-bold text-label-bold text-on-surface-variant">Progress</span>
+                  <span class="font-mono-label text-mono-label text-on-surface">45%</span>
+                </div>
+                <div class="h-[6px] w-full bg-surface-container-low rounded-full overflow-hidden">
+                  <div class="h-full bg-error transition-all duration-1000" style="width:45%;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-auto p-4 bg-surface-container-low border-t border-outline-variant flex justify-between items-center">
+              <div class="flex -space-x-2">
+                <img alt="Team member" class="w-6 h-6 rounded-full border border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaxqT-n3pwRhjwfJoNhCyrGXE8GaM3TnipyAUUxjVJJNWlvh--GSCSZ9IOueqKMYUhhyNL_9_l4Vq-MGpHCyduWrmgZ4YGaxhv2Rz9vysOM8IdytgeD675wQdKuR0GPmYzQ_pi4GDeQqZUDPDkXIxt5LDRhfgwN_SF0grisYBpioCnZsD364pthmBiTOyJL11WSSuTHlnM0mO2fp_5RdfGlf-K2Q78ZOPmQeFvZnOFZ_CBNWZYW9vGTMMhuc7L_snm2Ho9cdSsFAI"/>
+                <img alt="Team member" class="w-6 h-6 rounded-full border border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdd_q-E2EzPhR95fOAinmPZGiZBOE_DIRqmHSj7AlQwUT_hLZWwpXq0Qm1LYdwqZ1TTwLdXRE3KotUYJZ5sH6NjcOf0_FeLSGPfLIOlraRnaJk9Yjqk4Odih21Mg_I1JQ-iTjopTU2y_Fmqq9J4Boe9Z3JGywDcefLGEt1_0cFZ2zBoD1lCsXcu3AVDyT5G4o5T-Qj6Bqj0Vx_4mTRXvAxH3-GGM9R670gF5tV6OBjdG78bVc9saSDqI6zgrtjE8QkWUbEc0dd11g"/>
+                <div class="w-6 h-6 rounded-full bg-outline-variant border border-surface flex items-center justify-center text-[8px] text-on-surface-variant font-bold">+3</div>
+              </div>
+              <button class="font-label-bold text-label-bold text-primary hover:underline">View Project</button>
+            </div>
+          </div>
+
+          <!-- Card 2: On Track -->
+          <div class="bg-surface border border-outline-variant flex flex-col group hover:border-outline transition-all">
+            <div class="p-6 border-b border-outline-variant">
+              <div class="flex justify-between items-start mb-4">
+                <span class="px-2 py-0.5 rounded-full bg-primary-container text-on-primary-container font-mono-label text-[10px] uppercase">On Track</span>
+                <button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined">more_vert</span></button>
+              </div>
+              <h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Aether Dynamics</h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant">Cloud Migration Phase II</p>
+            </div>
+            <div class="p-6 space-y-4">
+              <div class="flex justify-between items-center">
+                <div class="flex flex-col"><span class="font-mono-label text-[10px] text-on-surface-variant uppercase">Deadline</span><span class="font-label-bold text-label-bold text-on-surface">Nov 30, 2024</span></div>
+                <div class="text-right"><span class="font-mono-label text-[10px] text-on-surface-variant uppercase">Time Remaining</span><span class="block font-label-bold text-label-bold text-on-surface">48 Days Left</span></div>
+              </div>
+              <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                  <span class="font-label-bold text-label-bold text-on-surface-variant">Progress</span>
+                  <span class="font-mono-label text-mono-label text-on-surface">78%</span>
+                </div>
+                <div class="h-[6px] w-full bg-surface-container-low rounded-full overflow-hidden">
+                  <div class="h-full bg-primary transition-all duration-1000" style="width:78%;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-auto p-4 bg-surface-container-low border-t border-outline-variant flex justify-between items-center">
+              <div class="flex -space-x-2">
+                <img alt="Team member" class="w-6 h-6 rounded-full border border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANAKVdvXY_UxT6S_Nt18FuUgC1VA6Wn1Fdo9IIRKL61S5jwIDL7FAJXcVfWzwAgvJ3d83qR3O8b1gnVIWYLPZwBNBM0DwWvJ9jJwUdglggRruArCDyrKlAZQBZi6aikfqP1LQXO-3Ge6_T1IJtDhFkOcxJBGeB7N7BIHIQL1ShMunU8LWYFkhNSPRgeunwhPcbw0cxViBhER1lx7vVJL0M5HhjL2k1LYXoZ9my_fa9QZB26twwWvW42L7y8dcshhNNhUAtXdBXH7c"/>
+                <img alt="Team member" class="w-6 h-6 rounded-full border border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMkTGnH9p64EcOiSfBFZKjlW5ZjQej_Pybo_U3okX15ut9EXBH-SrynJ6qn-jJmSe-qexqSiFE2cZDB-TjikpDqoSgybAl5EaxU48_Cx92qkBiWH5aALIAe7vd9Olc-2nsF6tvAOLZMR_qsPj3ffzE2_K4Q7KYMzP5w4nLBHNd4_XoMKkpSDPSHBW0JHeQZV6c-xWLcomNC3kBdx9SHOFeC677yk_d12LylQdjcDqD8yrhiaCtHsLfSjvY_Zwl9i1aLB1bR6OOnKc"/>
+              </div>
+              <button class="font-label-bold text-label-bold text-primary hover:underline">View Project</button>
+            </div>
+          </div>
+
+          <!-- Card 3: Completing Early -->
+          <div class="bg-surface border border-outline-variant flex flex-col group hover:border-outline transition-all">
+            <div class="p-6 border-b border-outline-variant">
+              <div class="flex justify-between items-start mb-4">
+                <span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-mono-label text-[10px] uppercase">Completing Early</span>
+                <button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined">more_vert</span></button>
+              </div>
+              <h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Zenith Partners</h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant">AI Strategy Deployment</p>
+            </div>
+            <div class="p-6 space-y-4">
+              <div class="flex justify-between items-center">
+                <div class="flex flex-col"><span class="font-mono-label text-[10px] text-on-surface-variant uppercase">Deadline</span><span class="font-label-bold text-label-bold text-on-surface">Dec 05, 2024</span></div>
+                <div class="text-right"><span class="font-mono-label text-[10px] text-on-surface-variant uppercase">Time Remaining</span><span class="block font-label-bold text-label-bold text-on-surface">53 Days Left</span></div>
+              </div>
+              <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                  <span class="font-label-bold text-label-bold text-on-surface-variant">Progress</span>
+                  <span class="font-mono-label text-mono-label text-on-surface">92%</span>
+                </div>
+                <div class="h-[6px] w-full bg-surface-container-low rounded-full overflow-hidden">
+                  <div class="h-full bg-secondary transition-all duration-1000" style="width:92%;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-auto p-4 bg-surface-container-low border-t border-outline-variant flex justify-between items-center">
+              <div class="flex -space-x-2">
+                <img alt="Team member" class="w-6 h-6 rounded-full border border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBanvRLgB57IzozdeMmUyyU7TQsobuS30y5CWk5tYqp_r5ASdPYhCf7qRbKXhSmQ2MTD5diTzzWc-Da0Gb0X-9WumO9OjbUnkmAYqvoGQSssnBPZZlijYug6lgBuK9Jk2wNmbVpHFUVErgrj-X1Da-2SFZ8uFjXcGWLZasNnpZT_ICUj-KRLV8pYZnYpfXdN1pMttbELkbtDFG87xiVZddTDkOwlygtWFIzxlJp5NEU8KbuvkHlN2uvKcMczr9UKyjmPho87yQvAKY"/>
+              </div>
+              <button class="font-label-bold text-label-bold text-primary hover:underline">View Project</button>
+            </div>
+          </div>
+
+          <!-- Card 4: On Track -->
+          <div class="bg-surface border border-outline-variant flex flex-col group hover:border-outline transition-all">
+            <div class="p-6 border-b border-outline-variant">
+              <div class="flex justify-between items-start mb-4">
+                <span class="px-2 py-0.5 rounded-full bg-primary-container text-on-primary-container font-mono-label text-[10px] uppercase">On Track</span>
+                <button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined">more_vert</span></button>
+              </div>
+              <h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Nexus Systems</h3>
+              <p class="font-body-sm text-body-sm text-on-surface-variant">Security Audit Compliance</p>
+            </div>
+            <div class="p-6 space-y-4">
+              <div class="flex justify-between items-center">
+                <div class="flex flex-col"><span class="font-mono-label text-[10px] text-on-surface-variant uppercase">Deadline</span><span class="font-label-bold text-label-bold text-on-surface">Jan 20, 2025</span></div>
+                <div class="text-right"><span class="font-mono-label text-[10px] text-on-surface-variant uppercase">Time Remaining</span><span class="block font-label-bold text-label-bold text-on-surface">98 Days Left</span></div>
+              </div>
+              <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                  <span class="font-label-bold text-label-bold text-on-surface-variant">Progress</span>
+                  <span class="font-mono-label text-mono-label text-on-surface">15%</span>
+                </div>
+                <div class="h-[6px] w-full bg-surface-container-low rounded-full overflow-hidden">
+                  <div class="h-full bg-primary transition-all duration-1000" style="width:15%;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-auto p-4 bg-surface-container-low border-t border-outline-variant flex justify-between items-center">
+              <div class="flex -space-x-2">
+                <img alt="Team member" class="w-6 h-6 rounded-full border border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMzfP9Kkg1I41tmMpzYMazqFAPVnSkS_x3s8H_6rI_5phl0EtYHwvo1HArOB3Lztr-r3lWfHXvwQQ5mITWEsMs7dJRLcbfvnKgV-6o6f2-cFgpKpfNuVtZC0zOYLvRItYo_xRoZDLIPtndyrqk6vVmFCKV4J74Bu5zCHE6vom-ywbLlLyk3FYexOgomPsCJ1MkGiXJR390GqS59XQEmfWs623am2YF01oQf06O21e1XczyXk6Nm3HDIy3j22fju7u0yuWdWeaxiTM"/>
+                <img alt="Team member" class="w-6 h-6 rounded-full border border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDva-mtwofOvCLS2zE-7Wxegigjdx-qyrAjyUBu2JTGYrz70pq4ATnzjX3V8tO-EjIM5v6yLY3LuZkueep8bDTUvV8wGRM0vDSSDX3sNVhLmqUnzQXqZIPKOR9H0nV6s-Wbx8VBAeeCJoJ-4GTiwpraQyVVm8v7ND94kMvGtp-Z2PJ-E6v4hn-O9Cf-7LEZM_2QVxQWQQa7nzrvKDm5nx0-sx5qQfoh0plRX1WcpqBRNdl36vk3j6WIlqtpzLw84fpN3WqQkR0ICe0"/>
+                <img alt="Team member" class="w-6 h-6 rounded-full border border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADKRF2BfVXAQcjL3WJkwVhfdEtlh8NBdcQyIwgp3UfF8kmh9co_HW4g2b7CrhPRNlXzSVQnsjz3cakaLakMvD4Ss6QECoKz59vp1XJWLIer4743goyD3t2cfWkZJnlrJA33Wr-weiC9-bNdBSZFzNYFO8PXlylz6dz2kMpNZXcNMEw6FxmwBAwuPsEJGcahbat3MyhwoTs7V87Ac-wGWxGUnYPEBOWwWSlMdqH9QYq4_a9uoKkS140yLn2irMjKeUEdFQh2bVy-w8"/>
+              </div>
+              <button class="font-label-bold text-label-bold text-primary hover:underline">View Project</button>
+            </div>
+          </div>
+
+          <!-- Large Visual Card -->
+          <div class="lg:col-span-2 bg-surface border border-outline-variant relative overflow-hidden h-[300px] md:h-auto group">
+            <img class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEc9dinNhq0MqZBAV6dKdCzJp1frV4JUEgVZYF17OQutT9hlm-QfMXgJMvBOx9HYhialsfcgLm9o3qNOjFGof0B28UjpZjUPJXEaSPJQrReDPfRXpHGQanrsrU6j1gTG8scp4xAQYYjZ4qGOJoNiuPlDVToj2ePMHchpCz0dccVuHs4sdrZL2qROUHRHsExRyGMtfkMio6oob6GYtY-0B6__OGPbhljUFTQhpM915eXwq4ZmACT_fdtUdhOpItWgeCThvw6LDTvmE" alt="Analytics visualization"/>
+            <div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
+            <div class="absolute bottom-0 left-0 p-8 w-full">
+              <h2 class="font-display-lg text-display-lg text-on-surface mb-2">Performance Analytics</h2>
+              <p class="font-body-md text-body-md text-on-surface-variant max-w-lg mb-4">Real-time aggregate delivery metrics across all active enterprise client nodes.</p>
+              <button class="flex items-center gap-2 px-6 py-2 bg-primary text-on-primary font-label-bold text-label-bold hover:opacity-90 transition-all">
+                Open Analytics Hub <span class="material-symbols-outlined">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================= -->
+    <!-- PAGE 2: SIMILARITY SCANNER    -->
+    <!-- ============================= -->
+    <div id="page-scanner" class="page-section">
+      <div style="max-width:1200px;margin:0 auto;padding:24px;padding-bottom:48px;">
+
+        <!-- Hero Section / Form -->
+        <section class="grid grid-cols-12 gap-8 items-start mb-10 pt-4">
+          <div class="col-span-12 lg:col-span-7 bg-surface-container-lowest border border-outline-variant rounded-xl p-8 shadow-sm">
+            <div class="mb-6">
+              <h1 class="font-display-lg text-display-lg text-primary mb-2">Submit New Project Request</h1>
+              <p class="text-on-surface-variant font-body-md max-w-md">Our intelligence platform will scan historical data to identify architectural similarities and relevant stakeholders.</p>
+            </div>
+            <div class="space-y-6">
+              <div class="space-y-2">
+                <label class="font-label-bold text-label-bold text-on-surface block">Project Title</label>
+                <input class="w-full border border-outline-variant rounded p-3 text-body-md focus:border-primary focus:ring-1 focus:ring-primary transition-all bg-white" placeholder="e.g., Cloud-Native Analytics Pipeline" type="text"/>
+              </div>
+              <div class="space-y-2">
+                <label class="font-label-bold text-label-bold text-on-surface block">Project Description</label>
+                <textarea class="w-full border border-outline-variant rounded p-3 text-body-md focus:border-primary focus:ring-1 focus:ring-primary transition-all bg-white" placeholder="Describe the technical stack, core objectives, and scale requirements..." rows="4"></textarea>
+              </div>
+              <div class="flex items-center justify-between pt-2">
+                <div class="flex gap-4">
+                  <button class="flex items-center gap-2 border border-outline-variant px-4 py-2 rounded font-label-bold text-label-bold hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">attach_file</span>Attach Spec
+                  </button>
+                  <button class="flex items-center gap-2 border border-outline-variant px-4 py-2 rounded font-label-bold text-label-bold hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined">link</span>Repo Link
+                  </button>
+                </div>
+                <button class="bg-primary text-on-primary px-8 py-3 rounded font-label-bold text-label-bold hover:opacity-90 transition-all active:scale-95">ANALYZE SIMILARITY</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-12 lg:col-span-5">
+            <div class="bg-primary-container text-on-primary-container p-8 rounded-xl flex flex-col justify-between relative overflow-hidden group" style="min-height:320px;">
+              <div class="relative z-10">
+                <div class="bg-white/10 w-12 h-12 rounded-lg flex items-center justify-center mb-6">
+                  <span class="material-symbols-outlined text-white">bolt</span>
+                </div>
+                <h3 class="font-headline-md text-headline-md mb-4">Precision Scanning</h3>
+                <p class="font-body-md opacity-80 mb-6">HindGPT uses advanced semantic analysis to compare project vectors against our enterprise repository of over 14,000 completed deliverables.</p>
+                <ul class="space-y-3 font-body-sm">
+                  <li class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">check_circle</span><span>Cross-repository code matching</span></li>
+                  <li class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">check_circle</span><span>Architectural pattern recognition</span></li>
+                  <li class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">check_circle</span><span>Resource overlap identification</span></li>
+                </ul>
+              </div>
+              <div class="absolute -right-10 -bottom-10 opacity-20 transform group-hover:scale-110 transition-transform duration-700">
+                <span class="material-symbols-outlined" style="font-size:240px;font-variation-settings:'FILL' 1;">schema</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="space-y-4">
+          <div class="flex items-center justify-between border-b border-outline-variant pb-4">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-primary">history</span>
+              <h2 class="font-headline-md text-headline-md text-on-surface">Similar Past Work</h2>
+            </div>
+            <div class="flex gap-2">
+              <button class="bg-surface border border-outline-variant px-3 py-1.5 rounded font-label-bold text-label-bold text-on-surface-variant flex items-center gap-2 hover:bg-surface-container-low transition-colors"><span class="material-symbols-outlined text-[18px]">filter_list</span>Filter</button>
+              <button class="bg-surface border border-outline-variant px-3 py-1.5 rounded font-label-bold text-label-bold text-on-surface-variant flex items-center gap-2 hover:bg-surface-container-low transition-colors"><span class="material-symbols-outlined text-[18px]">sort</span>Score</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-4">
+            <!-- Result 1 -->
+            <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-5 flex items-center gap-6 hover:border-primary transition-all group cursor-pointer">
+              <div class="flex flex-col items-center justify-center" style="min-width:80px;">
+                <span class="font-headline-md text-headline-md text-primary font-bold">94%</span>
+                <span class="font-mono-label text-[10px] text-on-surface-variant uppercase tracking-widest">Similarity</span>
+              </div>
+              <div class="flex-1 grid grid-cols-12 gap-4 items-center">
+                <div class="col-span-4">
+                  <h4 class="font-headline-sm text-headline-sm text-on-surface mb-1">Polaris-Nexus-V3</h4>
+                  <div class="flex gap-2">
+                    <span style="background:rgba(5,37,187,0.1);color:#0525bb;" class="px-2 py-0.5 rounded-full font-label-bold text-[10px] uppercase">High Confidence</span>
+                    <span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full font-label-bold text-[10px] uppercase">Infrastructure</span>
+                  </div>
+                </div>
+                <div class="col-span-5"><p class="text-body-sm text-on-surface-variant">Core infrastructure deployment for multi-region Kubernetes clusters with auto-scaling metrics.</p></div>
+                <div class="col-span-3 flex justify-end items-center gap-4">
+                  <a class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 font-mono-label text-mono-label" href="#"><span class="material-symbols-outlined text-[18px]">link</span>GitHub</a>
+                  <button class="p-2 rounded-full hover:bg-surface-container-low text-outline group-hover:text-primary transition-colors"><span class="material-symbols-outlined">chevron_right</span></button>
+                </div>
+              </div>
+            </div>
+            <!-- Result 2 -->
+            <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-5 flex items-center gap-6 hover:border-primary transition-all group cursor-pointer">
+              <div class="flex flex-col items-center justify-center" style="min-width:80px;">
+                <span class="font-headline-md text-headline-md text-on-surface-variant font-bold">78%</span>
+                <span class="font-mono-label text-[10px] text-on-surface-variant uppercase tracking-widest">Similarity</span>
+              </div>
+              <div class="flex-1 grid grid-cols-12 gap-4 items-center">
+                <div class="col-span-4">
+                  <h4 class="font-headline-sm text-headline-sm text-on-surface mb-1">Aura-Data-Ingest</h4>
+                  <div class="flex gap-2">
+                    <span style="background:rgba(81,95,116,0.1);color:#515f74;" class="px-2 py-0.5 rounded-full font-label-bold text-[10px] uppercase">Medium Confidence</span>
+                    <span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full font-label-bold text-[10px] uppercase">Pipeline</span>
+                  </div>
+                </div>
+                <div class="col-span-5"><p class="text-body-sm text-on-surface-variant">Kafka-based ingestion layer designed for high-throughput sensor data streams.</p></div>
+                <div class="col-span-3 flex justify-end items-center gap-4">
+                  <a class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 font-mono-label text-mono-label" href="#"><span class="material-symbols-outlined text-[18px]">link</span>GitHub</a>
+                  <button class="p-2 rounded-full hover:bg-surface-container-low text-outline group-hover:text-primary transition-colors"><span class="material-symbols-outlined">chevron_right</span></button>
+                </div>
+              </div>
+            </div>
+            <!-- Result 3 -->
+            <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-5 flex items-center gap-6 hover:border-primary transition-all group cursor-pointer">
+              <div class="flex flex-col items-center justify-center" style="min-width:80px;">
+                <span class="font-headline-md text-headline-md text-on-surface-variant font-bold">62%</span>
+                <span class="font-mono-label text-[10px] text-on-surface-variant uppercase tracking-widest">Similarity</span>
+              </div>
+              <div class="flex-1 grid grid-cols-12 gap-4 items-center">
+                <div class="col-span-4">
+                  <h4 class="font-headline-sm text-headline-sm text-on-surface mb-1">Lumina-Dashboard-UI</h4>
+                  <div class="flex gap-2">
+                    <span style="background:rgba(81,95,116,0.1);color:#515f74;" class="px-2 py-0.5 rounded-full font-label-bold text-[10px] uppercase">Medium Confidence</span>
+                    <span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full font-label-bold text-[10px] uppercase">Frontend</span>
+                  </div>
+                </div>
+                <div class="col-span-5"><p class="text-body-sm text-on-surface-variant">React-based analytics dashboard featuring complex D3.js visualization components.</p></div>
+                <div class="col-span-3 flex justify-end items-center gap-4">
+                  <a class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 font-mono-label text-mono-label" href="#"><span class="material-symbols-outlined text-[18px]">link</span>GitHub</a>
+                  <button class="p-2 rounded-full hover:bg-surface-container-low text-outline group-hover:text-primary transition-colors"><span class="material-symbols-outlined">chevron_right</span></button>
+                </div>
+              </div>
+            </div>
+            <!-- Result 4 -->
+            <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-5 flex items-center gap-6 hover:border-primary transition-all group cursor-pointer">
+              <div class="flex flex-col items-center justify-center" style="min-width:80px;">
+                <span class="font-headline-md text-headline-md text-primary font-bold">91%</span>
+                <span class="font-mono-label text-[10px] text-on-surface-variant uppercase tracking-widest">Similarity</span>
+              </div>
+              <div class="flex-1 grid grid-cols-12 gap-4 items-center">
+                <div class="col-span-4">
+                  <h4 class="font-headline-sm text-headline-sm text-on-surface mb-1">Titan-Auth-Service</h4>
+                  <div class="flex gap-2">
+                    <span style="background:rgba(5,37,187,0.1);color:#0525bb;" class="px-2 py-0.5 rounded-full font-label-bold text-[10px] uppercase">High Confidence</span>
+                    <span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full font-label-bold text-[10px] uppercase">Security</span>
+                  </div>
+                </div>
+                <div class="col-span-5"><p class="text-body-sm text-on-surface-variant">OAuth2 implementation with biometric support and JWT rotation logic.</p></div>
+                <div class="col-span-3 flex justify-end items-center gap-4">
+                  <a class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 font-mono-label text-mono-label" href="#"><span class="material-symbols-outlined text-[18px]">link</span>GitHub</a>
+                  <button class="p-2 rounded-full hover:bg-surface-container-low text-outline group-hover:text-primary transition-colors"><span class="material-symbols-outlined">chevron_right</span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-12 py-8 border-t border-outline-variant flex justify-between items-center text-on-surface-variant">
+          <div class="flex items-center gap-6 font-mono-label text-mono-label">
+            <span>© 2024 HindGPT Systems</span>
+            <a class="hover:text-primary transition-colors" href="#">API Documentation</a>
+            <a class="hover:text-primary transition-colors" href="#">System Health</a>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- ============================= -->
+    <!-- PAGE 3: ONBOARDING PORTAL     -->
+    <!-- ============================= -->
+    <div id="page-onboarding" class="page-section">
+      <div style="max-width:1440px;margin:0 auto;padding:24px;padding-bottom:48px;">
+
+        <!-- Welcome Header -->
+        <section class="mb-8 pt-4">
+          <div class="flex justify-between items-end flex-wrap gap-4">
+            <div>
+              <h3 class="font-display-lg text-display-lg text-on-surface mb-2">Welcome to the Team</h3>
+              <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">We're excited to have you onboard HindGPT. This portal is your central hub for initial setup, department-specific training, and meeting your core team members.</p>
+            </div>
+            <button class="bg-primary-container text-on-primary px-4 py-2 rounded flex items-center gap-2 cursor-pointer hover:opacity-90 transition-opacity">
+              <span class="material-symbols-outlined text-[18px]">download</span>
+              <span class="font-label-bold text-label-bold uppercase">Download Welcome Kit</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Bento Grid -->
+        <div class="grid grid-cols-12 gap-element-gap-md">
+          <!-- AI Chat Assistant -->
+          <div class="col-span-12 lg:col-span-7 bg-surface border border-outline-variant rounded-lg flex flex-col" style="height:500px;">
+            <div class="p-4 border-b border-outline-variant flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="p-2 bg-secondary-container rounded text-on-secondary-container"><span class="material-symbols-outlined">smart_toy</span></div>
+                <div>
+                  <h4 class="font-headline-sm text-headline-sm">HindGPT Assistant</h4>
+                  <p class="font-mono-label text-[10px] text-on-surface-variant uppercase">Dept: Product Strategy</p>
+                </div>
+              </div>
+              <span class="material-symbols-outlined text-on-surface-variant cursor-pointer">open_in_full</span>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-4" style="background:#f8fafc;">
+              <div class="flex gap-3" style="max-width:85%;">
+                <div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center flex-shrink-0">
+                  <span class="material-symbols-outlined text-white text-[16px]">robot_2</span>
+                </div>
+                <div class="bg-white border border-outline-variant p-3 rounded-tr-xl rounded-br-xl rounded-bl-xl shadow-sm">
+                  <p class="text-body-md">Hello John! I'm your onboarding assistant for the Product Strategy department. How can I help you get started today? I can explain our Q3 goals or show you where our internal documentation is kept.</p>
+                  <span class="text-[10px] text-on-surface-variant mt-2 block">10:02 AM</span>
+                </div>
+              </div>
+              <div class="flex gap-3 ml-auto flex-row-reverse" style="max-width:85%;">
+                <div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center flex-shrink-0">
+                  <span class="material-symbols-outlined text-primary text-[16px]">person</span>
+                </div>
+                <div class="bg-primary-container text-on-primary p-3 rounded-tl-xl rounded-bl-xl rounded-br-xl shadow-sm">
+                  <p class="text-body-md">Can you tell me more about my first week's goals?</p>
+                  <span class="text-[10px] opacity-70 mt-2 block">10:05 AM</span>
+                </div>
+              </div>
+              <div class="flex gap-3" style="max-width:85%;">
+                <div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center flex-shrink-0">
+                  <span class="material-symbols-outlined text-white text-[16px]">robot_2</span>
+                </div>
+                <div class="bg-white border border-outline-variant p-3 rounded-tr-xl rounded-br-xl rounded-bl-xl shadow-sm">
+                  <p class="text-body-md">For your first week, you should: (1) Complete HR onboarding paperwork, (2) Set up system access and 2FA, (3) Schedule your intro call with Sarah Miller your mentor, (4) Review the Q3 Product Roadmap on Confluence.</p>
+                  <span class="text-[10px] text-on-surface-variant mt-2 block">10:06 AM</span>
+                </div>
+              </div>
+            </div>
+            <div class="p-4 border-t border-outline-variant">
+              <div class="flex items-center gap-2 bg-white border border-outline px-4 py-2 rounded focus-within:border-primary transition-colors">
+                <input class="flex-1 border-none focus:ring-0 text-body-md p-0" placeholder="Ask about your role, tools, or policy..." type="text" style="outline:none;"/>
+                <span class="material-symbols-outlined text-primary cursor-pointer">send</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Team Directory -->
+          <div class="col-span-12 lg:col-span-5 bg-surface border border-outline-variant rounded-lg flex flex-col" style="height:500px;">
+            <div class="p-4 border-b border-outline-variant flex items-center justify-between">
+              <h4 class="font-headline-sm text-headline-sm">Team Directory</h4>
+              <span class="text-primary font-label-bold text-label-bold cursor-pointer">View All</span>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-3">
+              <div class="p-4 border border-outline-variant rounded-lg hover:bg-surface-container-low transition-colors flex items-center gap-4">
+                <img alt="Sarah Miller" class="w-12 h-12 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD33wMg5fRnOlIhzQTRNNV9U9vkGHokR7MYPojIdqA324OWe6C46r1Dt_V17I142n6quZyHiIfuMZ8df9-7MM377FpGyMGNy3H7QoUwMsJ4L7ois64RhVsOji7DjluFWvTFut21UkjoScPA_W1R6lm12XJsTfWXu5fABw-RjXsWDp4_yNKPIWaUvVNiRa5M_n1C10dfGLv9UH7vqxTQ0c_7fCC_5I1U9QpMNh-s5Ux1SybwVd1b-PFUftw8D4v_5wcZm_E6BPNzFXA"/>
+                <div class="flex-1"><h5 class="font-label-bold text-label-bold">Sarah Miller</h5><p class="text-body-sm text-on-surface-variant">Product Lead (Mentor)</p></div>
+                <div class="flex gap-2">
+                  <span class="material-symbols-outlined p-2 border border-outline-variant rounded text-on-surface-variant hover:text-primary cursor-pointer">chat</span>
+                  <span class="material-symbols-outlined p-2 border border-outline-variant rounded text-on-surface-variant hover:text-primary cursor-pointer">mail</span>
+                </div>
+              </div>
+              <div class="p-4 border border-outline-variant rounded-lg hover:bg-surface-container-low transition-colors flex items-center gap-4">
+                <img alt="David Chen" class="w-12 h-12 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJMLPkB4rvbJ5JSWHeYnpEUVXhVvv-IdT_niXVon7gDnSFypMueLUbaoC3Jplik0oPon-wllZDpnQx_PFfyDf8kUBSmBZrocj8VZDN4KbREhCCJmNfeuvcLZNf7qzxlNbMw-jmjw67AF5DhLBDxdyFZboTiY9GVoTHMyLp3PpBh8rP3tUWd13OV5RGccpOD1WF8mcAF0sDifEMf-MqZOowBxjOw0liVRhES40PUUAXzisTxTJna-_59MvzMkgruKfctYoDOPv0y1o"/>
+                <div class="flex-1"><h5 class="font-label-bold text-label-bold">David Chen</h5><p class="text-body-sm text-on-surface-variant">Senior Strategist</p></div>
+                <div class="flex gap-2">
+                  <span class="material-symbols-outlined p-2 border border-outline-variant rounded text-on-surface-variant hover:text-primary cursor-pointer">chat</span>
+                  <span class="material-symbols-outlined p-2 border border-outline-variant rounded text-on-surface-variant hover:text-primary cursor-pointer">mail</span>
+                </div>
+              </div>
+              <div class="p-4 border border-outline-variant rounded-lg hover:bg-surface-container-low transition-colors flex items-center gap-4">
+                <img alt="Elena Rodriguez" class="w-12 h-12 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQ-Wo93aTZCqcvJDRwIoplzalPrXO6d-bYjiwMii11mYPHKnzaW-H_vzubCMhNsWFnIKhxbBlydk6aWmzgi0U8YGsJZZHBHamtw78fV3LI7HqZy9u8hmxl0ySYbEKu3GNJKrlX1TUxxuvQgZi7HldxCmUyxAeSLqWoYBpCfvBtgvWFoCnjGJbZRicS_W2HXG4autVwavT1HNYMBOogxdi5NnadUmcqBRgnL9oQSWEediF0pIUnG7jFT1iL1B_hpx-mp51AJcOFNWs"/>
+                <div class="flex-1"><h5 class="font-label-bold text-label-bold">Elena Rodriguez</h5><p class="text-body-sm text-on-surface-variant">UX Researcher</p></div>
+                <div class="flex gap-2">
+                  <span class="material-symbols-outlined p-2 border border-outline-variant rounded text-on-surface-variant hover:text-primary cursor-pointer">chat</span>
+                  <span class="material-symbols-outlined p-2 border border-outline-variant rounded text-on-surface-variant hover:text-primary cursor-pointer">mail</span>
+                </div>
+              </div>
+              <div class="p-4 border border-outline-variant rounded-lg hover:bg-surface-container-low transition-colors flex items-center gap-4">
+                <img alt="Marcus Wright" class="w-12 h-12 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmw2cEhdhfhGvouAKqPqer0nN65sqfehkoC2Lvprsg8Yzyi04HFw2KESWzHYOhlWxLDFue5oAkpzf-XrHa33tRBPuYMBSH3m9XIHuTBeBTSZoyHd-R1nzkIo9y29FA-9mZ2edQwndjqUR4kTlb_ZXEEhdwM_RbsJRolyOhnecx_Rq260HYv6_2FhSD3f7LmG5hwxtkh6AJA76TPHlS3fy8L26NeFsquW60EyuH3HpgsBomIcoZ4E7EUI4NExgUi15k-5cq-wXyQyg"/>
+                <div class="flex-1"><h5 class="font-label-bold text-label-bold">Marcus Wright</h5><p class="text-body-sm text-on-surface-variant">Data Analyst</p></div>
+                <div class="flex gap-2">
+                  <span class="material-symbols-outlined p-2 border border-outline-variant rounded text-on-surface-variant hover:text-primary cursor-pointer">chat</span>
+                  <span class="material-symbols-outlined p-2 border border-outline-variant rounded text-on-surface-variant hover:text-primary cursor-pointer">mail</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Task List -->
+          <div class="col-span-12 bg-white border border-outline-variant rounded-lg p-6">
+            <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+              <div>
+                <h4 class="font-headline-md text-headline-md">Your First 7 Days</h4>
+                <p class="text-body-sm text-on-surface-variant">Complete these tasks to finalize your integration.</p>
+              </div>
+              <div class="text-right">
+                <span id="progress-text" class="font-mono-label text-mono-label text-primary">50% COMPLETE</span>
+                <div class="w-48 h-1.5 bg-surface-container rounded-full mt-1 overflow-hidden">
+                  <div id="progress-bar" class="bg-primary h-full transition-all duration-500" style="width:50%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-2">
+              <label class="group flex items-center gap-4 p-3 border-b border-surface-container-low cursor-pointer hover:bg-surface-container-lowest transition-colors onboarding-task">
+                <input checked class="w-5 h-5 rounded border-outline text-primary focus:ring-primary task-checkbox" type="checkbox"/>
+                <div class="flex-1"><p class="font-label-bold text-label-bold task-label line-through text-on-surface-variant">Finalize HR Paperwork</p><p class="text-[10px] text-on-surface-variant">Signed via DocuSign</p></div>
+                <span class="material-symbols-outlined text-on-tertiary-fixed-variant" style="font-variation-settings:'FILL' 1;">verified</span>
+              </label>
+              <label class="group flex items-center gap-4 p-3 border-b border-surface-container-low cursor-pointer hover:bg-surface-container-lowest transition-colors onboarding-task">
+                <input checked class="w-5 h-5 rounded border-outline text-primary focus:ring-primary task-checkbox" type="checkbox"/>
+                <div class="flex-1"><p class="font-label-bold text-label-bold task-label line-through text-on-surface-variant">System Access &amp; 2FA</p><p class="text-[10px] text-on-surface-variant">VPN and Email access granted</p></div>
+                <span class="material-symbols-outlined text-on-tertiary-fixed-variant" style="font-variation-settings:'FILL' 1;">verified</span>
+              </label>
+              <label class="group flex items-center gap-4 p-3 border-b border-surface-container-low cursor-pointer hover:bg-surface-container-lowest transition-colors onboarding-task">
+                <input checked class="w-5 h-5 rounded border-outline text-primary focus:ring-primary task-checkbox" type="checkbox"/>
+                <div class="flex-1"><p class="font-label-bold text-label-bold task-label line-through text-on-surface-variant">Intro Call with Mentor</p><p class="text-[10px] text-on-surface-variant">Completed with Sarah Miller</p></div>
+                <span class="material-symbols-outlined text-on-tertiary-fixed-variant" style="font-variation-settings:'FILL' 1;">verified</span>
+              </label>
+              <label class="group flex items-center gap-4 p-3 border-b border-surface-container-low cursor-pointer hover:bg-surface-container-lowest transition-colors onboarding-task">
+                <input class="w-5 h-5 rounded border-outline text-primary focus:ring-primary task-checkbox" type="checkbox"/>
+                <div class="flex-1"><p class="font-label-bold text-label-bold task-label">Product Roadmap Review</p><p class="text-[10px] text-on-surface-variant">Review the Confluence doc for Q3</p></div>
+                <span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+              </label>
+              <label class="group flex items-center gap-4 p-3 border-b border-surface-container-low cursor-pointer hover:bg-surface-container-lowest transition-colors onboarding-task">
+                <input class="w-5 h-5 rounded border-outline text-primary focus:ring-primary task-checkbox" type="checkbox"/>
+                <div class="flex-1"><p class="font-label-bold text-label-bold task-label">Schedule Team Lunch</p><p class="text-[10px] text-on-surface-variant">Connect with David to organize</p></div>
+                <span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+              </label>
+              <label class="group flex items-center gap-4 p-3 border-b border-surface-container-low cursor-pointer hover:bg-surface-container-lowest transition-colors onboarding-task">
+                <input class="w-5 h-5 rounded border-outline text-primary focus:ring-primary task-checkbox" type="checkbox"/>
+                <div class="flex-1"><p class="font-label-bold text-label-bold task-label">Security Awareness Training</p><p class="text-[10px] text-on-surface-variant">Mandatory module (45 mins)</p></div>
+                <span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================== -->
+    <!-- PAGE 4: INTELLIGENCE PLATFORM  -->
+    <!-- ============================== -->
+    <div id="page-intelligence" class="page-section">
+      <div class="custom-scrollbar" style="padding:32px 24px;max-width:1440px;margin:0 auto;padding-bottom:80px;">
+
+        <!-- Hero Section -->
+        <div class="mb-10">
+          <h1 class="font-display-lg text-display-lg text-on-surface mb-2">General Intelligence Platform</h1>
+          <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">Query our multi-modal internal knowledge base. HindGPT synthesizes technical debt, customer sentiment, and feature roadmaps into actionable intelligence.</p>
+        </div>
+
+        <!-- Bento Grid -->
+        <div class="grid grid-cols-12 gap-element-gap-md mb-8">
+          <!-- Search Box -->
+          <div class="col-span-12 lg:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-8 flex flex-col justify-center relative overflow-hidden" style="min-height:320px;">
+            <div class="absolute top-0 right-0 w-64 h-64 opacity-5 pointer-events-none">
+              <span class="material-symbols-outlined" style="font-size:200px;">psychology</span>
+            </div>
+            <h2 class="font-headline-sm text-headline-sm mb-6 flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary">auto_awesome</span>How can I help you today?
+            </h2>
+            <div class="relative">
+              <textarea class="w-full bg-surface-container border-2 border-transparent focus:border-primary focus:ring-0 rounded-xl p-6 font-body-md text-body-md resize-none transition-all" placeholder="Analyze the impact of the last API deployment on support tickets from the German market..." rows="3" style="outline:none;"></textarea>
+              <div class="absolute bottom-4 right-4 flex gap-2">
+                <button class="p-2 rounded-lg bg-surface hover:bg-surface-container-high transition-colors text-on-surface-variant border border-outline-variant">
+                  <span class="material-symbols-outlined text-[20px]">attachment</span>
+                </button>
+                <button class="bg-primary text-on-primary px-6 py-2 rounded-lg font-label-bold text-label-bold flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all">
+                  <span>Generate Intelligence</span><span class="material-symbols-outlined text-[18px]">bolt</span>
+                </button>
+              </div>
+            </div>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button class="px-3 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-body-sm text-body-sm hover:border-primary hover:text-primary transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-[16px]">history</span>Review Q3 Outages
+              </button>
+              <button class="px-3 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-body-sm text-body-sm hover:border-primary hover:text-primary transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-[16px]">monitoring</span>German Market Retention
+              </button>
+              <button class="px-3 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-body-sm text-body-sm hover:border-primary hover:text-primary transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-[16px]">code</span>Migration Guide v4.2
+              </button>
+            </div>
+          </div>
+
+          <!-- Status Cards -->
+          <div class="col-span-12 lg:col-span-4 flex flex-col gap-element-gap-md">
+            <div class="bg-surface-container-high rounded-xl p-6 border border-outline-variant flex-1">
+              <p class="font-label-bold text-label-bold text-on-surface-variant uppercase mb-4 tracking-widest">Active Sources</p>
+              <ul class="space-y-4">
+                <li class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="p-2 rounded bg-surface-container-lowest text-primary"><span class="material-symbols-outlined text-[20px]">terminal</span></div>
+                    <span class="font-body-md text-body-md">Cloud Infrastructure</span>
+                  </div>
+                  <span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;"></span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="p-2 rounded bg-surface-container-lowest text-primary"><span class="material-symbols-outlined text-[20px]">support_agent</span></div>
+                    <span class="font-body-md text-body-md">Zendesk Main Hub</span>
+                  </div>
+                  <span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;"></span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="p-2 rounded bg-surface-container-lowest text-primary"><span class="material-symbols-outlined text-[20px]">forum</span></div>
+                    <span class="font-body-md text-body-md">Slack Channels (Eng)</span>
+                  </div>
+                  <span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;display:inline-block;"></span>
+                </li>
+              </ul>
+            </div>
+            <div class="bg-primary text-on-primary rounded-xl p-6 border border-primary relative overflow-hidden">
+              <div class="relative z-10">
+                <p class="font-label-bold text-label-bold opacity-80 uppercase tracking-widest mb-2">Compute Power</p>
+                <h3 class="font-headline-md text-headline-md font-bold mb-4">Enterprise T4 Instance</h3>
+                <p class="font-body-sm text-body-sm opacity-90 mb-4">Optimized for rapid RAG across 45M tokens.</p>
+                <div class="w-full h-1.5 rounded-full" style="background:rgba(255,255,255,0.2);">
+                  <div class="h-full rounded-full" style="background:white;width:42%;"></div>
+                </div>
+              </div>
+              <div class="absolute -right-4 -bottom-4 opacity-10">
+                <span class="material-symbols-outlined" style="font-size:120px;">memory</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="border-b border-outline-variant mb-6 flex items-center justify-between">
+          <div class="flex gap-8">
+            <button id="tab-solutions" class="py-4 font-label-bold text-label-bold flex items-center gap-2 transition-all tab-active" onclick="switchIntelTab('solutions')">
+              <span class="material-symbols-outlined text-[18px]">history_edu</span>Past Solutions
+            </button>
+            <button id="tab-market" class="text-on-surface-variant hover:text-primary py-4 font-label-bold text-label-bold flex items-center gap-2 transition-all" onclick="switchIntelTab('market')">
+              <span class="material-symbols-outlined text-[18px]">query_stats</span>Market Analysis
+            </button>
+            <button id="tab-feedback" class="text-on-surface-variant hover:text-primary py-4 font-label-bold text-label-bold flex items-center gap-2 transition-all" onclick="switchIntelTab('feedback')">
+              <span class="material-symbols-outlined text-[18px]">rate_review</span>Product Feedback
+            </button>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="p-2 hover:bg-surface-container-high rounded transition-colors text-on-surface-variant"><span class="material-symbols-outlined">filter_list</span></button>
+            <button class="p-2 hover:bg-surface-container-high rounded transition-colors text-on-surface-variant"><span class="material-symbols-outlined">download</span></button>
+          </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="space-y-4">
+          <div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-lg hover:border-primary transition-all cursor-pointer group">
+            <div class="flex justify-between items-start mb-4">
+              <div class="flex items-center gap-3">
+                <span class="px-2 py-1 rounded bg-secondary-container text-on-secondary-container font-mono-label text-mono-label">CODEBASE</span>
+                <h3 class="font-headline-sm text-headline-sm group-hover:text-primary transition-colors">Kubernetes Auto-scaling Hotfix #449</h3>
+              </div>
+              <span class="font-body-sm text-body-sm text-on-surface-variant">2 days ago</span>
+            </div>
+            <p class="font-body-md text-body-md text-on-surface-variant mb-4">Resolved an issue where node termination was occurring during high-latency spikes in the EU-CENTRAL region. Implemented exponential backoff for health checks.</p>
+            <div class="flex items-center gap-4">
+              <div class="flex items-center gap-1 text-on-surface-variant"><span class="material-symbols-outlined text-[16px]">person</span><span class="font-body-sm text-body-sm">Alex Chen</span></div>
+              <div class="flex items-center gap-1 text-on-surface-variant"><span class="material-symbols-outlined text-[16px]">link</span><span class="font-body-sm text-body-sm">PR #1288</span></div>
+              <div class="ml-auto flex gap-2">
+                <span class="px-2 py-0.5 rounded-full border border-outline-variant text-[10px] font-bold text-on-surface-variant uppercase">Performance</span>
+                <span class="px-2 py-0.5 rounded-full border border-outline-variant text-[10px] font-bold text-on-surface-variant uppercase">Critical</span>
+              </div>
+            </div>
+          </div>
+          <div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-lg hover:border-primary transition-all cursor-pointer group">
+            <div class="flex justify-between items-start mb-4">
+              <div class="flex items-center gap-3">
+                <span class="px-2 py-1 rounded bg-tertiary-fixed text-on-tertiary-fixed font-mono-label text-mono-label">DOCS</span>
+                <h3 class="font-headline-sm text-headline-sm group-hover:text-primary transition-colors">Internal API Authentication Overhaul v2.1</h3>
+              </div>
+              <span class="font-body-sm text-body-sm text-on-surface-variant">1 week ago</span>
+            </div>
+            <p class="font-body-md text-body-md text-on-surface-variant mb-4">Detailed guide on migrating from OAuth legacy to the new mTLS standard for inter-service communication. Includes Python and Node.js code snippets.</p>
+            <div class="flex items-center gap-4">
+              <div class="flex items-center gap-1 text-on-surface-variant"><span class="material-symbols-outlined text-[16px]">person</span><span class="font-body-sm text-body-sm">Sarah Jenkins</span></div>
+              <div class="flex items-center gap-1 text-on-surface-variant"><span class="material-symbols-outlined text-[16px]">menu_book</span><span class="font-body-sm text-body-sm">Security Policy</span></div>
+              <div class="ml-auto flex gap-2">
+                <span class="px-2 py-0.5 rounded-full border border-outline-variant text-[10px] font-bold text-on-surface-variant uppercase">Security</span>
+              </div>
+            </div>
+          </div>
+          <div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-lg hover:border-primary transition-all cursor-pointer group">
+            <div class="flex justify-between items-start mb-4">
+              <div class="flex items-center gap-3">
+                <span class="px-2 py-1 rounded bg-primary-fixed text-on-primary-fixed font-mono-label text-mono-label">POST-MORTEM</span>
+                <h3 class="font-headline-sm text-headline-sm group-hover:text-primary transition-colors">Database Contention — Analytics DB</h3>
+              </div>
+              <span class="font-body-sm text-body-sm text-on-surface-variant">Oct 12, 2023</span>
+            </div>
+            <p class="font-body-md text-body-md text-on-surface-variant mb-4">Root cause analysis of the 45-minute outage during the Black Friday campaign. Identified unoptimized join queries on the telemetry table.</p>
+            <div class="flex items-center gap-4">
+              <div class="flex items-center gap-1 text-on-surface-variant"><span class="material-symbols-outlined text-[16px]">person</span><span class="font-body-sm text-body-sm">Site Reliability Team</span></div>
+              <div class="flex items-center gap-1 text-on-surface-variant"><span class="material-symbols-outlined text-[16px]">description</span><span class="font-body-sm text-body-sm">Incident #42</span></div>
+              <div class="ml-auto flex gap-2">
+                <span class="px-2 py-0.5 rounded-full border border-outline-variant text-[10px] font-bold text-on-surface-variant uppercase">SRE</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAB -->
+      <div id="intelligence-fab" style="position:fixed;bottom:32px;right:32px;z-index:50;">
+        <div style="position:relative;">
+          <button class="w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all group" style="display:flex;">
+            <span class="material-symbols-outlined text-[24px]">add</span>
+          </button>
+          <span style="position:absolute;right:calc(100% + 16px);top:50%;transform:translateY(-50%);background:#283044;color:#eef0ff;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.2s;" id="fab-tooltip">New Knowledge Node</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end scrollable content area -->
+</div><!-- end main wrapper -->
+
+<script>
+// ========== NAVIGATION ==========
+const pageTitles = {
+  dashboard: 'Client Dashboard',
+  scanner: 'Similarity Scanner',
+  onboarding: 'Onboarding Portal',
+  intelligence: 'Intelligence Platform'
+};
+
+function navigate(page) {
+  // Hide all page sections
+  document.querySelectorAll('.page-section').forEach(p => p.classList.remove('is-active'));
+  // Show selected page
+  const target = document.getElementById('page-' + page);
+  if (target) target.classList.add('is-active');
+
+  // Update nav active states
+  document.querySelectorAll('.nav-link').forEach(link => {
+    if (link.dataset.page === page) {
+      link.classList.add('is-active');
+    } else {
+      link.classList.remove('is-active');
+    }
+  });
+
+  // Update search placeholder based on page
+  const searchPlaceholders = {
+    dashboard: 'Search client projects...',
+    scanner: 'Search projects or repositories...',
+    onboarding: 'Search team members or tasks...',
+    intelligence: 'Search across codebase, tickets, and feedback...'
+  };
+  const searchInput = document.getElementById('main-search');
+  if (searchInput) searchInput.placeholder = searchPlaceholders[page] || 'Search...';
+
+  // Show/hide intelligence nav tabs
+  const intelTabs = document.getElementById('intelligence-nav-tabs');
+  if (intelTabs) intelTabs.style.display = page === 'intelligence' ? 'flex' : 'none';
+
+  // Scroll content area back to top
+  const contentArea = document.querySelector('[style*="overflow-y:auto"]');
+  if (contentArea) contentArea.scrollTop = 0;
+}
+
+// ========== INTELLIGENCE TABS ==========
+function switchIntelTab(tabName) {
+  const tabs = ['solutions', 'market', 'feedback'];
+  tabs.forEach(t => {
+    const btn = document.getElementById('tab-' + t);
+    if (btn) {
+      if (t === tabName) {
+        btn.classList.add('tab-active');
+        btn.classList.remove('text-on-surface-variant');
+      } else {
+        btn.classList.remove('tab-active');
+        btn.classList.add('text-on-surface-variant');
+      }
+    }
+  });
+}
+
+// ========== ONBOARDING TASK CHECKBOXES ==========
+function updateProgress() {
+  const checkboxes = document.querySelectorAll('.task-checkbox');
+  const total = checkboxes.length;
+  let checked = 0;
+  checkboxes.forEach(cb => { if (cb.checked) checked++; });
+  const pct = Math.round((checked / total) * 100);
+  const bar = document.getElementById('progress-bar');
+  const text = document.getElementById('progress-text');
+  if (bar) bar.style.width = pct + '%';
+  if (text) text.textContent = pct + '% COMPLETE';
+}
+
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.classList.contains('task-checkbox')) {
+    const label = e.target.closest('label');
+    if (label) {
+      const taskLabel = label.querySelector('.task-label');
+      if (taskLabel) {
+        if (e.target.checked) {
+          taskLabel.classList.add('line-through', 'text-on-surface-variant');
+        } else {
+          taskLabel.classList.remove('line-through', 'text-on-surface-variant');
+        }
+      }
+    }
+    updateProgress();
+  }
+});
+
+// ========== FAB TOOLTIP ==========
+const fab = document.getElementById('intelligence-fab');
+if (fab) {
+  const fabBtn = fab.querySelector('button');
+  const tooltip = document.getElementById('fab-tooltip');
+  if (fabBtn && tooltip) {
+    fabBtn.addEventListener('mouseenter', () => { tooltip.style.opacity = '1'; });
+    fabBtn.addEventListener('mouseleave', () => { tooltip.style.opacity = '0'; });
+  }
+}
+
+// ========== INITIALIZE ==========
+navigate('dashboard');
+updateProgress();
+</script>
+</body>
+</html>
